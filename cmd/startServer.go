@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	server "github.com/eris-ltd/eris-compilers/network"
-	log "github.com/eris-ltd/eris-logger"
+	server "github.com/eris-ltd/eris-compilers/perform"
+	"github.com/eris-ltd/eris/log"
 	"github.com/spf13/cobra"
 	"os"
 	"strconv"

@@ -1,4 +1,4 @@
-package network
+package perform
 
 import (
 	"encoding/json"
@@ -6,19 +6,24 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/eris-ltd/eris-compilers/util"
+	"github.com/eris-ltd/eris-compilers/definitions"
 
-	"github.com/eris-ltd/common/go/common"
-	log "github.com/eris-ltd/eris-logger"
+	"github.com/eris-ltd/eris/config"
+	"github.com/eris-ltd/eris/log"
 )
 
 // Start the compile server
 func StartServer(addrUnsecure, addrSecure, cert, key string) {
 	log.Warn("Hello I'm the marmots' compilers server")
-	common.InitErisDir()
+	config.InitErisDir()
+	if err := os.Mkdir("binaries", 0666); err != nil {
+		log.Error("problem starting binaries directory, exiting...")
+		os.Exit(1)
+	}
 	// Routes
 
 	http.HandleFunc("/", CompileHandler)
+	http.HandleFunc("/binaries", BinaryHandler)
 	// Use SSL ?
 	log.Debug(cert)
 	if addrSecure != "" {
@@ -55,8 +60,33 @@ func CompileHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(respJ)
 }
 
+func BinaryHandler(w http.ResponseWriter, r *http.Request) {
+	// read the request body
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Errorln("err on read http request body", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	// unmarshall body into req struct
+	req := new(definitions.BinaryRequest)
+	err = json.Unmarshal(body, req)
+	if err != nil {
+		log.Errorln("err on json unmarshal of request", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	resp := linkBinaries(req)
+	respJ, err := json.Marshal(resp)
+	if err != nil {
+		log.Errorln("failed to marshal", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Write(respJ)
+}
+
 // read in the files from the request, compile them
-func compileResponse(w http.ResponseWriter, r *http.Request) *util.Response {
+func compileResponse(w http.ResponseWriter, r *http.Request) *Response {
 	// read the request body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -66,7 +96,7 @@ func compileResponse(w http.ResponseWriter, r *http.Request) *util.Response {
 	}
 
 	// unmarshall body into req struct
-	req := new(util.Request)
+	req := new(definitions.Request)
 	err = json.Unmarshal(body, req)
 	if err != nil {
 		log.Errorln("err on json unmarshal of request", err)
@@ -77,27 +107,27 @@ func compileResponse(w http.ResponseWriter, r *http.Request) *util.Response {
 	log.WithFields(log.Fields{
 		"lang": req.Language,
 		// "script": string(req.Script),
-		"libs":   req.Libraries,
-		"incl":   req.Includes,
+		"libs": req.Libraries,
+		"incl": req.Includes,
 	}).Debug("New Request")
 
-	cached := util.CheckCached(req.Includes, req.Language)
+	cached := CheckCached(req.Includes, req.Language)
 
 	log.WithField("cached?", cached).Debug("Cached Item(s)")
 
-	var resp *util.Response
+	var resp *Response
 	// if everything is cached, no need for request
 	if cached {
-		resp, err = util.CachedResponse(req.Includes, req.Language)
+		resp, err = CachedResponse(req.Includes, req.Language)
 		if err != nil {
 			log.Errorln("err during caching response", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return nil
 		}
 	} else {
-		resp = util.Compile(req)
+		resp = compile(req)
 		resp.CacheNewResponse(*req)
 	}
-	util.PrintResponse(*resp)
+	PrintResponse(*resp, false)
 	return resp
 }

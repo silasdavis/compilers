@@ -1,9 +1,8 @@
 package: github.com/eris-ltd/eris-compilers
 import:
-- package: github.com/ebuchman/go-shell-pipes
-- package: github.com/eris-ltd/common
+- package: github.com/eris-ltd/eris
+  version: develop
   subpackages:
-  - go/common
-  - go/docs
-- package: github.com/eris-ltd/eris-logger
+  - config
+  - log
 - package: github.com/spf13/cobra

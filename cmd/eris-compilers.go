@@ -5,7 +5,7 @@ import (
 
 	"github.com/eris-ltd/eris-compilers/version"
 
-	log "github.com/eris-ltd/eris-logger"
+	"github.com/eris-ltd/eris/log"
 	"github.com/spf13/cobra"
 )
 
@@ -44,6 +44,7 @@ func Execute() {
 func AddCommands() {
 	BuildServerCommand()
 	BuildCompileCommand()
+	BuildBinaryCommand()
 }
 
 func AddGlobalFlags() {
