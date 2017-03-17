@@ -20,15 +20,14 @@ import (
 
 func TestRequestCreation(t *testing.T) {
 	var err error
-	contractCode := `pragma solidity ^0.4.0;
-
+	contractCode := `
 contract c {
     function f() {
         uint8[5] memory foo3 = [1, 1, 1, 1, 1];
     }
 }`
 	var testMap = map[string]*definitions.IncludedFiles{
-		"27fbf28c5dfb221f98526c587c5762cdf4025e85809c71ba871caa2ca42a9d85.sol": {
+		"13db7b5ea4e589c03c4b09b692723247c4029ab59047957940b06e1611be66ba.sol": {
 			ObjectNames: []string{"c"},
 			Script:      []byte(contractCode),
 		},
