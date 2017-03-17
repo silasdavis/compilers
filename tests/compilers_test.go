@@ -20,8 +20,7 @@ import (
 
 func TestRequestCreation(t *testing.T) {
 	var err error
-	contractCode := `
-contract c {
+	contractCode := `contract c {
     function f() {
         uint8[5] memory foo3 = [1, 1, 1, 1, 1];
     }
