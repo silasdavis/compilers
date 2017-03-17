@@ -1,5 +1,3 @@
-pragma solidity ^0.4.0;
-
 import {importedContract as poop} from './contractImport2.sol';
 import "./contractImport3.sol";
 
