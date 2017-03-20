@@ -140,7 +140,7 @@ func RequestCompile(url string, file string, optimize bool, libraries string) (*
 		resp.CacheNewResponse(*request)
 	}
 
-	PrintResponse(*resp, false)
+	//PrintResponse(*resp, false)
 
 	return resp, nil
 }
