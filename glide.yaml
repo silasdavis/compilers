@@ -1,6 +1,6 @@
 package: github.com/monax/compilers
 import:
-- package: github.com/monax/eris
+- package: github.com/monax/cli
   version: rename-to-monax
   subpackages:
   - config
